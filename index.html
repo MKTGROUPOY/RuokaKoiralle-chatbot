@@ -1,104 +1,97 @@
 <!DOCTYPE html>
 <html lang="fi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Roki – RuokaKoiralle Chatbot</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #fafafa;
-        padding: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-      h1 {
-        color: #333;
-      }
-      #chat {
-        width: 100%;
-        max-width: 600px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-      }
-      #messages {
-        height: 300px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-      .user {
-        color: blue;
-        margin-bottom: 8px;
-      }
-      .bot {
-        color: green;
-        margin-bottom: 8px;
-      }
-      input {
-        width: 80%;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-      }
-      button {
-        padding: 10px 15px;
-        border: none;
-        background: #007bff;
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>🐶 Roki – RuokaKoiralle Chatbot</h1>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roki – RuokaKoiralle Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    h1 {
+      color: #333;
+    }
+    #chat {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .user { color: blue; margin-bottom: 8px; }
+    .bot { color: green; margin-bottom: 8px; }
+    input {
+      width: 80%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐶 Roki – RuokaKoiralle Chatbot</h1>
 
-    <div id="chat">
-      <div id="messages"></div>
-      <input
-        type="text"
-        id="userInput"
-        placeholder="Kirjoita kysymys Rokille..."
-      />
-      <button onclick="sendMessage()">Lähetä</button>
-    </div>
+  <div id="chat">
+    <div id="messages"></div>
+    <input type="text" id="userInput" placeholder="Kirjoita kysymys Rokille...">
+    <button id="sendButton">Lähetä</button>
+  </div>
 
-    <script type="module">
-      import { askRoki } from "./ask.js";
+  <script type="module">
+    import { askRoki } from './ask.js';
 
-      const messagesDiv = document.getElementById("messages");
-      const input = document.getElementById("userInput");
+    const messagesDiv = document.getElementById('messages');
+    const input = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
 
-      async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
 
-        addMessage("user", text);
-        input.value = "";
+      addMessage('user', text);
+      input.value = '';
 
-        addMessage("bot", "Roki miettii... 🐾");
-        const response = await askRoki(text);
+      addMessage('bot', 'Roki miettii... 🐾');
+      const response = await askRoki(text);
 
-        // Poistetaan "miettii..." ja lisätään vastaus
-        messagesDiv.lastChild.remove();
-        addMessage("bot", response);
-      }
+      messagesDiv.lastChild.remove();
+      addMessage('bot', response);
+    }
 
-      function addMessage(role, text) {
-        const msg = document.createElement("div");
-        msg.className = role;
-        msg.textContent =
-          (role === "user" ? "Sinä: " : "Roki: ") + text;
-        messagesDiv.appendChild(msg);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      }
-    </script>
-  </body>
+    function addMessage(role, text) {
+      const msg = document.createElement('div');
+      msg.className = role;
+      msg.textContent = (role === 'user' ? 'Sinä: ' : 'Roki: ') + text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Nyt liitetään funktio selaimelle
+    sendButton.addEventListener('click', sendMessage);
+    window.sendMessage = sendMessage; // tärkeä korjaus
+  </script>
+</body>
 </html>
