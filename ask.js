@@ -1,4 +1,5 @@
 // ask.js
+
 export async function askRoki(question) {
   const response = await fetch("https://ruokakoiralle-chatbot.onrender.com/api/ask", {
     method: "POST",
@@ -7,5 +8,5 @@ export async function askRoki(question) {
   });
 
   const data = await response.json();
-  return data.answer;
+  return data.answer || "Roki ei saanut vastausta. 🐾";
 }
