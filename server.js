@@ -1,48 +1,48 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
-import path from "path";
-import { fileURLToPath } from "url";
-import OpenAI from "openai";
-
-// Tarvitaan, jotta saadaan nykyinen hakemisto ES-moduulissa
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import fetch from "node-fetch";
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Palvellaan index.html automaattisesti
-app.use(express.static(__dirname));
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
-// API-reitti Rokille
 app.post("/api/ask", async (req, res) => {
   const question = req.body.question;
 
+  console.log("🟢 Saatiin kysymys:", question);
+  console.log("🔐 OpenAI-avain asetettu:", !!process.env.OPENAI_API_KEY);
+
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("❌ OpenAI API key puuttuu Renderista!");
+    return res.json({ answer: "Palvelimella ei ole API-avainta asetettuna 😢" });
+  }
+
   try {
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "Olet Roki, ystävällinen chatbot RuokaKoiralle.fi-verkkokaupasta. Autat asiakkaita löytämään sopivan ruoan heidän koiralleen." },
-        { role: "user", content: question }
-      ]
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "Olet ystävällinen koira nimeltä Roki, joka vastaa ruuasta ja koirista." },
+          { role: "user", content: question },
+        ],
+      }),
     });
 
-    res.json({ answer: completion.choices[0].message.content });
+    const data = await response.json();
+    console.log("🟣 OpenAI vastaus:", data);
+
+    const answer = data.choices?.[0]?.message?.content || "Roki ei saanut vastausta. 🐾";
+    res.json({ answer });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Jotain meni pieleen Rokissa" });
+    console.error("🔥 Virhe OpenAI-haussa:", error);
+    res.json({ answer: "Rokilla meni vähän pieleen... 😅" });
   }
 });
 
-// Render näyttää index.html:n juuripolussa
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-app.listen(10000, () => console.log("🐶 Roki-palvelin toimii portissa 10000"));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`🚀 Serveri käynnissä portissa ${PORT}`));
