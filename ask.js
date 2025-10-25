@@ -1,12 +1,19 @@
-// ask.js
-
 export async function askRoki(question) {
-  const response = await fetch("https://ruokakoiralle-chatbot.onrender.com/api/ask", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question })
-  });
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    });
 
-  const data = await response.json();
-  return data.answer || "Roki ei saanut vastausta. 🐾";
+    if (!response.ok) {
+      throw new Error("Virhe palvelimessa");
+    }
+
+    const data = await response.json();
+    return data.answer || "Roki ei saanut vastausta 🐾";
+  } catch (err) {
+    console.error("Roki-virhe:", err);
+    return "Roki ei vastaa juuri nyt. Tarkista yhteys 🐾";
+  }
 }
