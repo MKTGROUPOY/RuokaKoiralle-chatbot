@@ -1,20 +1,23 @@
 // ask.js
 
-import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.13.0/+esm";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Turvallinen, haetaan GitHub Secretsistä
-  dangerouslyAllowBrowser: true
-});
-
 export async function askRoki(question) {
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: "Olet Roki, ystävällinen chatbot RuokaKoiralle.fi-verkkokaupasta. Autat asiakkaita löytämään sopivan ruoan heidän koiralleen." },
-      { role: "user", content: question }
-    ]
-  });
+  try {
+    const response = await fetch("https://ruokakoiralle-chatbot.onrender.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ question })
+    });
 
-  return completion.choices[0].message.content;
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.answer;
+  } catch (error) {
+    console.error("Virhe palvelimelta:", error);
+    return "Roki ei valitettavasti saanut yhteyttä palvelimeen. Yritä hetken kuluttua uudelleen!";
+  }
 }
